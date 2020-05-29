@@ -1,0 +1,8 @@
+{
+  "RunElectrumPath":"/root/Electrum-3.3.8/run_electrum",
+  "WatchWalletPath":"/root/simplebtc/watch-simple",
+  "PayableWalletPath":"/root/.electrumwallet/coins",
+  "ElectrumHeaderPath":"/root/.electrum/blockchain_headers",
+  "HttpListenAddr":":8080",
+  "Network":""
+}
