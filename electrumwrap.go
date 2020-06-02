@@ -21,8 +21,14 @@ func HexToBytes(s string) ([]byte, error) {
 }
 
 func ElectrumHistory(config Configuration) (*RetHistory, error) {
-	wParam := fmt.Sprintf("-w=%s", config.WatchWalletPath)
-	cmd := exec.Command("python3", config.RunElectrumPath, wParam, "history", config.Network)
+	wParam := fmt.Sprintf(`-w=%s`, config.WatchWalletPath)
+	var cmd *exec.Cmd
+	if len(config.Network) > 0 {
+		cmd = exec.Command("python3", config.RunElectrumPath, wParam, "history", config.Network)
+	} else {
+		cmd = exec.Command("python3", config.RunElectrumPath, wParam, "history")
+	}
+
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, ElectrumWErr{"Command history fail", err}
@@ -32,14 +38,20 @@ func ElectrumHistory(config Configuration) (*RetHistory, error) {
 	ret := &RetHistory{}
 	err = decoder.Decode(ret)
 	if err != nil {
-		return nil, ElectrumWErr{"decode fail", err}
+		return nil, ElectrumWErr{"decode fail:" + string(output), err}
 	}
 	return ret, nil
 }
 
 func ElectrumGetTransaction(config Configuration, txid string) (*RetGetTransaction, error) {
-	wParam := fmt.Sprintf("-w=%s", config.WatchWalletPath)
-	cmd := exec.Command("python3", config.RunElectrumPath, wParam, "gettransaction", txid, config.Network)
+	wParam := fmt.Sprintf(`-w=%s`, config.WatchWalletPath)
+	var cmd *exec.Cmd
+	if len(config.Network) > 0 {
+		cmd = exec.Command("python3", config.RunElectrumPath, wParam, "gettransaction", txid, config.Network)
+	} else {
+		cmd = exec.Command("python3", config.RunElectrumPath, wParam, "gettransaction", txid)
+	}
+
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, ElectrumWErr{"Command gettransaction fail", err}
@@ -55,8 +67,13 @@ func ElectrumGetTransaction(config Configuration, txid string) (*RetGetTransacti
 }
 
 func ElectrumDeserialize(config Configuration, hex string) (*RetDeserTx, error) {
-	wParam := fmt.Sprintf("-w=%s", config.WatchWalletPath)
-	cmd := exec.Command("python3", config.RunElectrumPath, wParam, "deserialize", hex, config.Network)
+	wParam := fmt.Sprintf(`-w=%s`, config.WatchWalletPath)
+	var cmd *exec.Cmd
+	if len(config.Network) > 0 {
+		cmd = exec.Command("python3", config.RunElectrumPath, wParam, "deserialize", hex, config.Network)
+	} else {
+		cmd = exec.Command("python3", config.RunElectrumPath, wParam, "deserialize", hex)
+	}
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, ElectrumWErr{"Command deserialize fail", err}
@@ -85,8 +102,13 @@ func ElectrumPayToMany(config Configuration, outputs string) (*RetGetTransaction
 	}
 
 	fmt.Println("paytomany:", outputs, "\nfeerate:", feerate)
-	wParam := fmt.Sprintf("-w=%s", config.PayableWalletPath)
-	cmd := exec.Command("python3", config.RunElectrumPath, wParam, "paytomany", outputs, "-f="+feerate, config.Network)
+	wParam := fmt.Sprintf(`-w=%s`, config.PayableWalletPath)
+	var cmd *exec.Cmd
+	if len(config.Network) > 0 {
+		cmd = exec.Command("python3", config.RunElectrumPath, wParam, "paytomany", outputs, "-f="+feerate, config.Network)
+	} else {
+		cmd = exec.Command("python3", config.RunElectrumPath, wParam, "paytomany", outputs, "-f="+feerate)
+	}
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, ElectrumWErr{"Command paytomany fail：" + string(output), err}
@@ -108,7 +130,12 @@ func ElectrumPayToMany(config Configuration, outputs string) (*RetGetTransaction
 }
 
 func ElectrumGetfeerate(config Configuration) (string, error) {
-	cmd := exec.Command("python3", config.RunElectrumPath, "getfeerate", "--fee_method=mempool", config.Network)
+	var cmd *exec.Cmd
+	if len(config.Network) > 0 {
+		cmd = exec.Command("python3", config.RunElectrumPath, "getfeerate", "--fee_method=mempool", config.Network)
+	} else {
+		cmd = exec.Command("python3", config.RunElectrumPath, "getfeerate", "--fee_method=mempool")
+	}
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return "600000", ElectrumWErr{"Command getfeerate fail：" + string(output), err}
@@ -117,7 +144,12 @@ func ElectrumGetfeerate(config Configuration) (string, error) {
 }
 
 func ElectrumBroadcast(config Configuration, txhex string) (string, error) {
-	cmd := exec.Command("python3", config.RunElectrumPath, "broadcast", txhex, config.Network)
+	var cmd *exec.Cmd
+	if len(config.Network) > 0 {
+		cmd = exec.Command("python3", config.RunElectrumPath, "broadcast", txhex, config.Network)
+	} else {
+		cmd = exec.Command("python3", config.RunElectrumPath, "broadcast", txhex)
+	}
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", ElectrumWErr{"Command broadcast fail: " + string(output), err}
